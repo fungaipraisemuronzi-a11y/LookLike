@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Post</title>
+
+  <link
+    rel="stylesheet"
+    href="/css/style.css"
+  >
+</head>
+
+<body>
+
+<div class="feed-container">
+
+  <nav class="navbar">
+
+    <a href="/feed">
+      Home
+    </a>
+
+    <a href="/users/<%= currentUser.id %>">
+      My Profile
+    </a>
+
+    <a href="/users">
+      Discover Users
+    </a>
+
+    <a href="/logout">
+      Logout
+    </a>
+
+  </nav>
+
+  <div class="post-card">
+
+    <h1>Create Post</h1>
+
+    <form
+      action="/posts"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+
+      <textarea
+        name="content"
+        placeholder="What's happening?"
+        required
+      ></textarea>
+
+      <br>
+
+      <input
+        type="file"
+        name="image"
+        accept="image/*"
+      />
+
+      <br><br>
+
+      <button type="submit">
+        Create Post
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+</body>
+</html>

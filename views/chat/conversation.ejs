@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="feed-container">
+
+  <h1>Chat</h1>
+
+  <div class="post-card">
+
+    <% if (conversation.messages && conversation.messages.length > 0) { %>
+
+      <% conversation.messages.forEach(message => { %>
+
+        <p>
+          <strong>
+            <%= message.sender?.username || "User" %>
+          </strong>
+          :
+          <%= message.text %>
+        </p>
+
+      <% }) %>
+
+    <% } else { %>
+
+      <p>No messages yet. Start the conversation 👇</p>
+
+    <% } %>
+
+    <form
+      action="/chat/conversation/<%= conversation.id %>/message"
+      method="POST"
+    >
+
+      <input
+        type="text"
+        name="text"
+        placeholder="Write message..."
+        required
+      />
+
+      <button type="submit">
+        Send
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+</body>
+</html>

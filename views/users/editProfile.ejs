@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<h1>Edit Profile</h1>
+
+<form
+  action="/profile/edit"
+  method="POST"
+  enctype="multipart/form-data"
+>
+
+  <input
+    type="text"
+    name="username"
+    value="<%= currentUser.username %>"
+    placeholder="Username"
+  />
+
+  <br><br>
+
+  <textarea
+    name="bio"
+    placeholder="Your bio..."
+  ><%= currentUser.bio || "" %></textarea>
+
+  <br><br>
+
+  <input
+    type="file"
+    name="profileImage"
+    accept="image/*"
+  />
+
+  <br><br>
+
+  <button type="submit">
+    Save Changes
+  </button>
+
+</form>
+
+</body>
+</html>

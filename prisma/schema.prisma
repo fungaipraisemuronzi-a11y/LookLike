@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  email         String    @unique
+  password      String
+  bio           String?
+  profileImage  String?
+  createdAt     DateTime  @default(now())
+
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+
+  following     Follow[] @relation("following")
+  followers     Follow[] @relation("followers")
+  conversations Conversation[]
+messages      Message[]
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  content     String
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+
+  authorId    Int
+  author      User      @relation(fields: [authorId], references: [id])
+
+  comments    Comment[]
+  likes       Like[]
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  text        String
+  createdAt   DateTime  @default(now())
+
+  userId      Int
+  postId      Int
+
+  user        User      @relation(fields: [userId], references: [id])
+  post        Post      @relation(fields: [postId], references: [id])
+}
+
+model Like {
+  id          Int       @id @default(autoincrement())
+
+  userId      Int
+  postId      Int
+
+  user        User      @relation(fields: [userId], references: [id])
+  post        Post      @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
+}
+
+model Follow {
+  id            Int      @id @default(autoincrement())
+
+  followerId    Int
+  followingId   Int
+
+  follower      User @relation("followers", fields: [followerId], references: [id])
+  following     User @relation("following", fields: [followingId], references: [id])
+
+  createdAt     DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Conversation {
+  id           Int       @id @default(autoincrement())
+
+  participants User[]
+
+  messages     Message[]
+
+  createdAt    DateTime  @default(now())
+}
+
+model Message {
+  id             Int           @id @default(autoincrement())
+
+  text           String
+
+  sender         User          @relation(fields: [senderId], references: [id])
+  senderId       Int
+
+read           Boolean  @default(false)
+  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  conversationId Int
+
+  createdAt      DateTime      @default(now())
+}

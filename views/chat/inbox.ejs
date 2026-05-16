@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inbox</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="feed-container">
+
+  <h1>Inbox</h1>
+
+  <% if (conversations && conversations.length > 0) { %>
+
+    <% conversations.forEach(conversation => { %>
+
+      <div class="post-card">
+
+        <% 
+          const otherUser = conversation.participants.find(
+            user => user.id !== currentUser.id
+          );
+        %>
+
+        <% if (otherUser) { %>
+
+          <a href="/chat/conversation/<%= conversation.id %>">
+
+            <h3>
+
+              <%= otherUser.username %>
+
+              <% if (conversation.unread > 0) { %>
+
+                <span
+                  style="
+                    color: red;
+                    font-size: 14px;
+                    margin-left: 8px;
+                  "
+                >
+                  (<%= conversation.unread %>)
+                </span>
+
+              <% } %>
+
+            </h3>
+
+          </a>
+
+        <% } %>
+
+        <% if (
+          conversation.messages &&
+          conversation.messages.length > 0
+        ) { %>
+
+          <p>
+            <%= conversation.messages[0].text %>
+          </p>
+
+        <% } %>
+
+      </div>
+
+    <% }) %>
+
+  <% } else { %>
+
+    <p>No conversations yet.</p>
+
+  <% } %>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Users</title>
+
+  <link
+    rel="stylesheet"
+    href="/css/style.css"
+  >
+</head>
+
+<body>
+
+<div class="feed-container">
+
+  <nav class="navbar">
+
+    <a href="/feed">
+      Home
+    </a>
+
+    <a href="/users/<%= currentUser.id %>">
+      My Profile
+    </a>
+
+    <a href="/posts/new">
+      Create Post
+    </a>
+
+    <a href="/logout">
+      Logout
+    </a>
+
+  </nav>
+
+  <h1>Discover Users</h1>
+
+  <% if (users.length === 0) { %>
+
+    <p>
+      No users found
+    </p>
+
+  <% } %>
+
+  <% users.forEach(user => { %>
+
+    <div class="post-card">
+
+      <div class="author-section">
+
+        <% if (user.profileImage) { %>
+
+          <img
+            src="<%= user.profileImage %>"
+          />
+
+        <% } %>
+
+        <a href="/users/<%= user.id %>">
+
+          <h3>
+            <%= user.username %>
+          </h3>
+
+        </a>
+
+      </div>
+
+      <p>
+        <strong>
+          Following:
+        </strong>
+
+        <%= user.followers.length %>
+      </p>
+
+      <p>
+        <strong>
+          Followers:
+        </strong>
+
+        <%= user.following.length %>
+      </p>
+
+      <form
+        action="/users/<%= user.id %>/follow"
+        method="POST"
+      >
+
+        <button type="submit">
+          Follow / Unfollow
+        </button>
+
+      </form>
+
+    </div>
+
+  <% }) %>
+
+</div>
+
+</body>
+</html>

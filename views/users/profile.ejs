@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+    <%= profileUser.username %>'s Profile
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/css/style.css"
+  >
+</head>
+
+<body>
+
+<div class="profile-container">
+
+  <a href="/feed">
+    ← Back To Feed
+  </a>
+
+  <br><br>
+
+  <h1>
+    <%= profileUser.username %>
+  </h1>
+
+  <% if (profileUser.profileImage) { %>
+
+    <img
+      src="<%= profileUser.profileImage %>"
+      class="profile-image"
+    />
+
+  <% } %>
+
+  <% if (currentUser.id === profileUser.id) { %>
+
+    <br>
+
+    <a href="/profile/edit">
+
+      <button>
+        Edit Profile
+      </button>
+
+    </a>
+
+  <% } %>
+
+  <br><br>
+
+  <p>
+    <strong>
+      Following:
+    </strong>
+
+    <%= profileUser.followers.length %>
+  </p>
+
+  <p>
+    <strong>
+      Followers:
+    </strong>
+
+    <%= profileUser.following.length %>
+  </p>
+
+  <br>
+<% if (currentUser.id !== profileUser.id) { %>
+
+  <a
+    href="/chat/user/<%= profileUser.id %>"
+  >
+
+    <button>
+      💬 Message
+    </button>
+
+  </a>
+
+<% } %>
+  <p>
+    <%= profileUser.bio || "No bio yet" %>
+  </p>
+
+  <hr>
+
+  <h2>Posts</h2>
+
+  <% if (profileUser.posts.length === 0) { %>
+
+    <p>
+      No posts yet
+    </p>
+
+  <% } %>
+
+  <% profileUser.posts.forEach(post => { %>
+
+    <div class="post-card">
+
+      <p>
+        <%= post.content %>
+      </p>
+
+      <% if (post.imageUrl) { %>
+
+        <img
+          src="<%= post.imageUrl %>"
+          class="post-image"
+        />
+
+      <% } %>
+
+      <br><br>
+
+      <p>
+        ❤️ <%= post.likes.length %> likes
+      </p>
+
+      <p>
+        💬 <%= post.comments.length %> comments
+      </p>
+
+    </div>
+
+  <% }) %>
+
+</div>
+
+</body>
+</html>

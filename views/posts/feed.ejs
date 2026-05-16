@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TokTik</title>
+
+  <link
+    rel="stylesheet"
+    href="/css/style.css"
+  >
+</head>
+
+<body>
+
+<div class="feed-container">
+
+  <h1>TokTik</h1>
+
+  <nav class="navbar">
+
+    <a href="/users/<%= currentUser.id %>">
+      My Profile
+    </a>
+
+    <a href="/posts/new">
+      Create Post
+    </a>
+
+    <a href="/users">
+      Discover Users
+    </a>
+
+    <a href="/chat">
+  Inbox
+</a>
+
+    <a href="/logout">
+      Logout
+    </a>
+
+  </nav>
+
+  <% posts.forEach(post => { %>
+
+    <div class="post-card">
+
+      <!-- AUTHOR -->
+
+      <div class="author-section">
+
+        <% if (post.author.profileImage) { %>
+
+          <img
+            src="<%= post.author.profileImage %>"
+          />
+
+        <% } %>
+
+        <a href="/users/<%= post.author.id %>">
+
+          <h3>
+            <%= post.author.username %>
+          </h3>
+
+        </a>
+
+      </div>
+
+      <!-- POST CONTENT -->
+
+      <p>
+        <%= post.content %>
+      </p>
+
+      <!-- POST IMAGE -->
+
+      <% if (post.imageUrl) { %>
+
+        <img
+          src="<%= post.imageUrl %>"
+          class="post-image"
+        />
+
+      <% } %>
+
+      <!-- ACTION ROW -->
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:15px;
+          margin-top:15px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <!-- LIKE -->
+
+        <form
+          action="/posts/<%= post.id %>/like"
+          method="POST"
+        >
+
+          <button type="submit">
+            ❤️ Like
+          </button>
+
+        </form>
+
+        <span>
+          <%= post.likes.length %> likes
+        </span>
+
+        <!-- COMMENTS BUTTON -->
+
+        <button
+          type="button"
+          onclick="toggleComments('<%= post.id %>')"
+        >
+
+          💬 View Comments
+          (<%= post.comments.length %>)
+
+        </button>
+
+      </div>
+
+      <!-- DELETE BUTTON -->
+
+      <% if (post.authorId === currentUser.id) { %>
+
+        <form
+          action="/posts/<%= post.id %>/delete"
+          method="POST"
+          style="margin-top:10px;"
+        >
+
+          <button
+            type="submit"
+            onclick="
+              return confirm(
+                'Delete this post?'
+              )
+            "
+          >
+            🗑 Delete Post
+          </button>
+
+        </form>
+
+      <% } %>
+
+      <!-- COMMENTS SECTION -->
+
+      <div
+        id="comments-<%= post.id %>"
+        class="comment-box"
+        style="
+          display:none;
+          margin-top:15px;
+        "
+      >
+
+        <h4>Comments</h4>
+
+        <% if (post.comments.length === 0) { %>
+
+          <p>No comments yet</p>
+
+        <% } %>
+
+        <% post.comments.forEach(comment => { %>
+
+          <p class="comment">
+
+            <strong>
+              <%= comment.user.username %>
+            </strong>
+
+            :
+
+            <%= comment.text %>
+
+          </p>
+
+        <% }) %>
+
+        <!-- COMMENT FORM -->
+
+        <form
+          action="/posts/<%= post.id %>/comment"
+          method="POST"
+        >
+
+          <input
+            type="text"
+            name="text"
+            placeholder="Write comment..."
+            required
+          />
+
+          <button type="submit">
+            Comment
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  <% }) %>
+
+</div>
+
+<script>
+
+  function toggleComments(postId) {
+
+    const commentSection =
+      document.getElementById(
+        `comments-${postId}`
+      );
+
+    if (
+      commentSection.style.display === "none"
+    ) {
+
+      commentSection.style.display = "block";
+
+    } else {
+
+      commentSection.style.display = "none";
+
+    }
+  }
+
+</script>
+
+</body>
+</html>
