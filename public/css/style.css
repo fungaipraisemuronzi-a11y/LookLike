@@ -1,26 +1,33 @@
+/* RESET */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* BODY */
+
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  background: #f5f5f5;
   color: #222;
-  padding: 20px;
+  padding: 12px;
+  line-height: 1.5;
+  font-size: 16px;
 }
 
 /* NAVBAR */
 
 .navbar {
   background: white;
-  padding: 15px 20px;
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 14px;
   display: flex;
-  gap: 20px;
+  gap: 14px;
   align-items: center;
-  margin-bottom: 25px;
+  justify-content: space-between;
+  margin-bottom: 18px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   flex-wrap: wrap;
 }
@@ -29,25 +36,31 @@ body {
   text-decoration: none;
   color: #333;
   font-weight: bold;
+  font-size: 15px;
 }
 
 .navbar a:hover {
   color: #0077ff;
 }
 
-/* FEED */
+/* CONTAINERS */
 
-.feed-container {
+.feed-container,
+.profile-container {
+  width: 100%;
   max-width: 700px;
   margin: auto;
 }
 
+/* CARD */
+
 .post-card {
   background: white;
-  padding: 20px;
-  border-radius: 15px;
-  margin-bottom: 25px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  padding: 16px;
+  border-radius: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
 }
 
 /* AUTHOR */
@@ -56,12 +69,12 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 .author-section img {
-  width: 55px;
-  height: 55px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -69,32 +82,74 @@ body {
 .author-section a {
   text-decoration: none;
   color: #111;
+  font-size: 15px;
 }
 
 /* POST IMAGE */
 
 .post-image {
   width: 100%;
-  border-radius: 12px;
-  margin-top: 15px;
-  max-height: 500px;
+  border-radius: 14px;
+  margin-top: 14px;
+  max-height: 450px;
   object-fit: cover;
+}
+
+/* TEXT */
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 18px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+h3 {
+  font-size: 17px;
+}
+
+p {
+  font-size: 15px;
+  margin-top: 8px;
+  word-wrap: break-word;
 }
 
 /* BUTTONS */
 
-button {
-  padding: 10px 15px;
+button,
+.like,
+.comment,
+.delete {
+  padding: 12px 16px;
   border: none;
-  background: #0077ff;
-  color: white;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   margin-top: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+button {
+  background: #0077ff;
+  color: white;
 }
 
 button:hover {
   background: #005ed1;
+}
+
+.like,
+.comment {
+  background: whitesmoke;
+  color: black;
+}
+
+.delete {
+  background: #ff4d4d;
+  color: white;
 }
 
 /* INPUTS */
@@ -102,23 +157,31 @@ button:hover {
 input,
 textarea {
   width: 100%;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 14px;
+  border-radius: 14px;
   border: 1px solid #ccc;
-  margin-top: 10px;
+  margin-top: 12px;
+  font-size: 16px;
+  outline: none;
+  background: white;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #0077ff;
 }
 
 textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 130px;
 }
 
 /* COMMENTS */
 
 .comment-box {
-  margin-top: 15px;
-  padding-top: 10px;
-  border-top: 1px solid #ddd;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
 }
 
 .comment {
@@ -128,20 +191,25 @@ textarea {
 /* PROFILE */
 
 .profile-container {
-  max-width: 700px;
-  margin: auto;
   background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 }
 
 .profile-image {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  margin: 20px 0;
+  margin: 20px auto;
+  display: block;
+}
+
+/* LINKS */
+
+a {
+  text-decoration: none;
 }
 
 /* MOBILE */
@@ -150,18 +218,51 @@ textarea {
 
   body {
     padding: 10px;
+    font-size: 15px;
   }
 
   .navbar {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
+  }
+
+  .navbar a {
+    width: 100%;
   }
 
   .post-card {
-    padding: 15px;
+    padding: 14px;
+    border-radius: 16px;
   }
 
-  button {
+  button,
+  .like,
+  .comment,
+  .delete {
     width: 100%;
+  }
+
+  input,
+  textarea {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  .author-section img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .profile-image {
+    width: 100px;
+    height: 100px;
   }
 }

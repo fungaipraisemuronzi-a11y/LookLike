@@ -101,7 +101,7 @@
           method="POST"
         >
 
-          <button type="submit">
+          <button type="submit" class="like">
             ❤️ Like
           </button>
 
@@ -116,6 +116,7 @@
         <button
           type="button"
           onclick="toggleComments('<%= post.id %>')"
+          class="comment"
         >
 
           💬 View Comments
@@ -142,6 +143,7 @@
                 'Delete this post?'
               )
             "
+            class="delete"
           >
             🗑 Delete Post
           </button>
