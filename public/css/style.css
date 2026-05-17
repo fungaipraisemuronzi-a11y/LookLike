@@ -22,13 +22,13 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  margin: 2% 5% 0% 5%;
+  width: 94%;
+  margin: 2% 3% 0% 3%;
   height: 95px;
   background: #1a1a1a;
   border-bottom: 1px solid #2f2f2f;
   display: flex;
-  gap: 130px;
+  gap: 105px;
   align-items: center;
   justify-content: center;
   z-index: 1000;
