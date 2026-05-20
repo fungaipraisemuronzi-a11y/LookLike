@@ -2,8 +2,13 @@
 <html>
 <head>
   <title>Chat</title>
-  <link rel="stylesheet" href="/css/style.css">
+
+  <link
+    rel="stylesheet"
+    href="/css/style.css"
+  >
 </head>
+
 <body>
 
 <div class="feed-container">
@@ -12,37 +17,34 @@
 
   <div class="post-card">
 
-    <% if (conversation.messages && conversation.messages.length > 0) { %>
+    <div id="messages">
 
       <% conversation.messages.forEach(message => { %>
 
         <p>
+
           <strong>
-            <%= message.sender?.username || "User" %>
+            <%= message.sender.username %>
           </strong>
+
           :
+
           <%= message.text %>
+
         </p>
 
       <% }) %>
 
-    <% } else { %>
+    </div>
 
-      <p>No messages yet. Start the conversation 👇</p>
-
-    <% } %>
-
-    <form
-      action="/chat/conversation/<%= conversation.id %>/message"
-      method="POST"
-    >
+    <form id="chatForm">
 
       <input
         type="text"
-        name="text"
+        id="messageInput"
         placeholder="Write message..."
         required
-      />
+      >
 
       <button type="submit">
         Send
@@ -53,6 +55,96 @@
   </div>
 
 </div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+const socket = io();
+
+const conversationId =
+  <%= conversation.id %>;
+
+socket.emit(
+  "joinConversation",
+  conversationId
+);
+
+const form =
+  document.getElementById(
+    "chatForm"
+  );
+
+const input =
+  document.getElementById(
+    "messageInput"
+  );
+
+const messages =
+  document.getElementById(
+    "messages"
+  );
+
+form.addEventListener(
+  "submit",
+  async (e) => {
+
+    e.preventDefault();
+
+    const text =
+      input.value;
+
+    if (!text) return;
+
+    await fetch(
+      `/chat/conversation/${conversationId}/message`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          text,
+        }),
+      }
+    );
+
+    socket.emit(
+      "sendMessage",
+      {
+        conversationId,
+
+        text,
+
+        username:
+          "<%= currentUser.username %>",
+      }
+    );
+
+    input.value = "";
+
+  }
+);
+
+socket.on(
+  "newMessage",
+  (data) => {
+
+    const p =
+      document.createElement("p");
+
+    p.innerHTML =
+      `<strong>${data.username}</strong>: ${data.text}`;
+
+    messages.appendChild(p);
+
+  }
+);
+
+</script>
 
 </body>
 </html>

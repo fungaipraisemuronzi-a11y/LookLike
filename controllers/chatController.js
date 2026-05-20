@@ -58,14 +58,17 @@ SEND MESSAGE
 */
 exports.sendMessage = async (req, res) => {
   try {
-    const conversationId = parseInt(
-      req.params.conversationId
-    );
+
+    const conversationId =
+      parseInt(
+        req.params.conversationId
+      );
 
     const { text } = req.body;
 
     await prisma.message.create({
       data: {
+
         text,
 
         sender: {
@@ -79,17 +82,21 @@ exports.sendMessage = async (req, res) => {
             id: conversationId,
           },
         },
-
-        read: false,
       },
     });
 
-    res.redirect(
-      `/chat/conversation/${conversationId}`
-    );
+    res.json({
+      success: true,
+    });
+
   } catch (error) {
+
     console.log(error);
-    res.send("Message failed");
+
+    res.status(500).json({
+      success: false,
+    });
+
   }
 };
 

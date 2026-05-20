@@ -5,6 +5,9 @@ const session = require("express-session");
 const path = require("path");
 const flash = require("connect-flash");
 
+const http = require("http");
+const { Server } = require("socket.io");
+
 const passport = require("./config/passport");
 
 const authRoutes = require("./routes/authRoutes");
@@ -17,16 +20,26 @@ const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
+const server = http.createServer(app);
+
+const io = new Server(server);
+
 /* =========================
    MIDDLEWARE
 ========================= */
 
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.json());
+
 app.use(express.static("public"));
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+
+app.set(
+  "views",
+  path.join(__dirname, "views")
+);
 
 /* =========================
    SESSION
@@ -35,7 +48,9 @@ app.set("views", path.join(__dirname, "views"));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
+
     resave: false,
+
     saveUninitialized: false,
   })
 );
@@ -45,6 +60,7 @@ app.use(
 ========================= */
 
 app.use(passport.initialize());
+
 app.use(passport.session());
 
 /* =========================
@@ -54,9 +70,15 @@ app.use(passport.session());
 app.use(flash());
 
 app.use((req, res, next) => {
-  res.locals.currentUser = req.user;
-  res.locals.errorMessages = req.flash("error");
+
+  res.locals.currentUser =
+    req.user;
+
+  res.locals.errorMessages =
+    req.flash("error");
+
   next();
+
 });
 
 /* =========================
@@ -64,11 +86,17 @@ app.use((req, res, next) => {
 ========================= */
 
 app.use("/", authRoutes);
+
 app.use("/", postRoutes);
+
 app.use("/", likeRoutes);
+
 app.use("/", commentRoutes);
+
 app.use("/", followRoutes);
+
 app.use("/", userRoutes);
+
 app.use("/", chatRoutes);
 
 /* =========================
@@ -76,15 +104,63 @@ app.use("/", chatRoutes);
 ========================= */
 
 app.get("/", (req, res) => {
+
   res.render("index");
+
+});
+
+/* =========================
+   SOCKET.IO
+========================= */
+
+io.on("connection", (socket) => {
+
+  console.log("User connected");
+
+  socket.on(
+    "joinConversation",
+    (conversationId) => {
+
+      socket.join(
+        `conversation-${conversationId}`
+      );
+
+    }
+  );
+
+  socket.on(
+    "sendMessage",
+    (data) => {
+
+      io.to(
+        `conversation-${data.conversationId}`
+      ).emit(
+        "newMessage",
+        data
+      );
+
+    }
+  );
+
+  socket.on("disconnect", () => {
+
+    console.log("User disconnected");
+
+  });
+
 });
 
 /* =========================
    SERVER
 ========================= */
 
-const PORT = process.env.PORT || 3000;
+const PORT =
+  process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+
+  console.log(
+    `Server running on port ${PORT}`
+  );
+
 });
