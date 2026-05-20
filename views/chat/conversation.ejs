@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+
   <title>Chat</title>
 
   <link
     rel="stylesheet"
     href="/css/style.css"
   >
+
 </head>
 
 <body>
@@ -19,21 +21,34 @@
 
     <div id="messages">
 
-      <% conversation.messages.forEach(message => { %>
+      <% if (
+        conversation.messages &&
+        conversation.messages.length > 0
+      ) { %>
+
+        <% conversation.messages.forEach(message => { %>
+
+          <p>
+
+            <strong>
+              <%= message.sender.username %>
+            </strong>
+
+            :
+
+            <%= message.text %>
+
+          </p>
+
+        <% }) %>
+
+      <% } else { %>
 
         <p>
-
-          <strong>
-            <%= message.sender.username %>
-          </strong>
-
-          :
-
-          <%= message.text %>
-
+          No messages yet.
         </p>
 
-      <% }) %>
+      <% } %>
 
     </div>
 
@@ -56,19 +71,50 @@
 
 </div>
 
+<!-- SOCKET.IO -->
+
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
 
+/* =========================
+   SOCKET CONNECTION
+========================= */
+
 const socket = io();
 
+socket.on(
+  "connect",
+  () => {
+
+    console.log(
+      "Socket connected:",
+      socket.id
+    );
+
+  }
+);
+
+/* =========================
+   CONVERSATION ID
+========================= */
+
 const conversationId =
-  <%= conversation.id %>;
+ "<%= conversation.id %>";
 
 socket.emit(
   "joinConversation",
   conversationId
 );
+
+console.log(
+  "Joined conversation:",
+  conversationId
+);
+
+/* =========================
+   ELEMENTS
+========================= */
 
 const form =
   document.getElementById(
@@ -85,6 +131,39 @@ const messages =
     "messages"
   );
 
+/* =========================
+   RECEIVE LIVE MESSAGE
+========================= */
+
+socket.on(
+  "newMessage",
+  (data) => {
+
+    console.log(
+      "Received:",
+      data
+    );
+
+    const p =
+      document.createElement("p");
+
+    p.innerHTML =
+      `<strong>${data.username}</strong>: ${data.text}`;
+
+    messages.appendChild(p);
+
+    window.scrollTo(
+      0,
+      document.body.scrollHeight
+    );
+
+  }
+);
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
 form.addEventListener(
   "submit",
   async (e) => {
@@ -92,9 +171,25 @@ form.addEventListener(
     e.preventDefault();
 
     const text =
-      input.value;
+      input.value.trim();
 
     if (!text) return;
+
+    // LIVE MESSAGE
+
+    socket.emit(
+      "sendMessage",
+      {
+        conversationId,
+
+        text,
+
+        username:
+          "<%= currentUser.username %>",
+      }
+    );
+
+    // SAVE TO DATABASE
 
     await fetch(
       `/chat/conversation/${conversationId}/message`,
@@ -112,34 +207,7 @@ form.addEventListener(
       }
     );
 
-    socket.emit(
-      "sendMessage",
-      {
-        conversationId,
-
-        text,
-
-        username:
-          "<%= currentUser.username %>",
-      }
-    );
-
     input.value = "";
-
-  }
-);
-
-socket.on(
-  "newMessage",
-  (data) => {
-
-    const p =
-      document.createElement("p");
-
-    p.innerHTML =
-      `<strong>${data.username}</strong>: ${data.text}`;
-
-    messages.appendChild(p);
 
   }
 );
