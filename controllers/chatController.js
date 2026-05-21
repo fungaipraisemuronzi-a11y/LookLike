@@ -56,7 +56,11 @@ exports.startChat = async (req, res) => {
 SEND MESSAGE
 ========================
 */
-exports.sendMessage = async (req, res) => {
+exports.sendMessage = async (
+  req,
+  res
+) => {
+
   try {
 
     const conversationId =
@@ -64,26 +68,68 @@ exports.sendMessage = async (req, res) => {
         req.params.conversationId
       );
 
-    const { text } = req.body;
+    const text =
+      req.body?.text || "";
 
-    await prisma.message.create({
-      data: {
+    let imageUrl = null;
 
-        text,
+    if (req.file) {
 
-        sender: {
-          connect: {
-            id: req.user.id,
+      imageUrl =
+        "/uploads/" +
+        req.file.filename;
+
+    }
+
+    const message =
+      await prisma.message.create({
+
+        data: {
+
+          text,
+
+          image: imageUrl,
+
+          sender: {
+            connect: {
+              id: req.user.id,
+            },
           },
+
+          conversation: {
+            connect: {
+              id: conversationId,
+            },
+          },
+
         },
 
-        conversation: {
-          connect: {
-            id: conversationId,
-          },
+        include: {
+          sender: true,
         },
-      },
-    });
+
+      });
+
+    const io =
+      req.app.get("io");
+
+    io.to(
+      `conversation-${conversationId}`
+    ).emit(
+      "newMessage",
+      {
+        username:
+          message.sender.username,
+
+        text: message.text,
+
+        image: message.image,
+      }
+    );
+
+    io.emit(
+      "refreshInbox"
+    );
 
     res.json({
       success: true,
@@ -98,20 +144,29 @@ exports.sendMessage = async (req, res) => {
     });
 
   }
+
 };
 
 /*
 ========================
-GET INBOX (WITH UNREAD COUNT FIXED)
+GET INBOX (WITH UNREAD COUNT)
+========================
+*/
+/*
+========================
+GET INBOX
 ========================
 */
 exports.getInbox = async (req, res) => {
   try {
+
     const conversations =
       await prisma.conversation.findMany({
         where: {
           participants: {
-            some: { id: req.user.id },
+            some: {
+              id: req.user.id,
+            },
           },
         },
 
@@ -119,37 +174,68 @@ exports.getInbox = async (req, res) => {
           participants: true,
 
           messages: {
-            orderBy: { createdAt: "desc" },
+            include: {
+              sender: true,
+            },
+
+            orderBy: {
+              createdAt: "desc",
+            },
+
             take: 1,
           },
         },
+
+        orderBy: {
+          createdAt: "desc",
+        },
       });
 
-    // add unread count
-    const conversationsWithUnread = await Promise.all(
-      conversations.map(async (c) => {
-        const unread = await prisma.message.count({
-          where: {
-            conversationId: c.id,
-            senderId: { not: req.user.id },
-            read: false,
-          },
-        });
+    // ADD UNREAD COUNT
+    const updatedConversations =
+      await Promise.all(
 
-        return {
-          ...c,
-          unread,
-        };
-      })
-    );
+        conversations.map(async (
+          conversation
+        ) => {
+
+          const unread =
+            await prisma.message.count({
+              where: {
+                conversationId:
+                  conversation.id,
+
+                senderId: {
+                  not: req.user.id,
+                },
+
+                read: false,
+              },
+            });
+
+          return {
+            ...conversation,
+            unread,
+          };
+
+        })
+      );
 
     res.render("chat/inbox", {
-      conversations: conversationsWithUnread,
+      conversations:
+        updatedConversations,
+
       currentUser: req.user,
     });
+
   } catch (error) {
+
     console.log(error);
-    res.send("Failed to load inbox");
+
+    res.send(
+      "Failed to load inbox"
+    );
+
   }
 };
 

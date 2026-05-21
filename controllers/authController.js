@@ -34,7 +34,7 @@ exports.postRegister = async (req, res) => {
       },
     });
 
-    res.redirect("/login");
+    res.redirect("/feed");
 
   } catch (error) {
     console.log(error);

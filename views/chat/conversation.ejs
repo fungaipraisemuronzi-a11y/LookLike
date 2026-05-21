@@ -28,37 +28,65 @@
 
         <% conversation.messages.forEach(message => { %>
 
-          <p>
+          <div
+            style="margin-bottom:20px;"
+          >
 
-            <strong>
-              <%= message.sender.username %>
-            </strong>
+            <p>
 
-            :
+              <strong>
+                <%= message.sender.username %>
+              </strong>
 
-            <%= message.text %>
+            </p>
 
-          </p>
+            <% if (message.text) { %>
+
+              <p>
+                <%= message.text %>
+              </p>
+
+            <% } %>
+
+            <% if (message.image) { %>
+
+              <img
+                src="<%= message.image %>"
+                style="
+                  width:100%;
+                  max-width:300px;
+                  border-radius:12px;
+                  margin-top:10px;
+                "
+              >
+
+            <% } %>
+
+          </div>
 
         <% }) %>
-
-      <% } else { %>
-
-        <p>
-          No messages yet.
-        </p>
 
       <% } %>
 
     </div>
 
-    <form id="chatForm">
+    <form
+      id="chatForm"
+      enctype="multipart/form-data"
+    >
 
       <input
         type="text"
         id="messageInput"
+        name="text"
         placeholder="Write message..."
-        required
+      >
+
+      <input
+        type="file"
+        id="imageInput"
+        name="image"
+        accept="image/*"
       >
 
       <button type="submit">
@@ -71,59 +99,23 @@
 
 </div>
 
-<!-- SOCKET.IO -->
-
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
 
-/* =========================
-   SOCKET CONNECTION
-========================= */
-
 const socket = io();
 
-socket.on(
-  "connect",
-  () => {
-
-    console.log(
-      "Socket connected:",
-      socket.id
-    );
-
-  }
-);
-
-/* =========================
-   CONVERSATION ID
-========================= */
-
 const conversationId =
- "<%= conversation.id %>";
+  "<%= conversation.id %>";
 
 socket.emit(
   "joinConversation",
   conversationId
 );
 
-console.log(
-  "Joined conversation:",
-  conversationId
-);
-
-/* =========================
-   ELEMENTS
-========================= */
-
 const form =
   document.getElementById(
     "chatForm"
-  );
-
-const input =
-  document.getElementById(
-    "messageInput"
   );
 
 const messages =
@@ -131,83 +123,78 @@ const messages =
     "messages"
   );
 
-/* =========================
-   RECEIVE LIVE MESSAGE
-========================= */
-
-socket.on(
-  "newMessage",
-  (data) => {
-
-    console.log(
-      "Received:",
-      data
-    );
-
-    const p =
-      document.createElement("p");
-
-    p.innerHTML =
-      `<strong>${data.username}</strong>: ${data.text}`;
-
-    messages.appendChild(p);
-
-    window.scrollTo(
-      0,
-      document.body.scrollHeight
-    );
-
-  }
-);
-
-/* =========================
-   SEND MESSAGE
-========================= */
-
 form.addEventListener(
   "submit",
   async (e) => {
 
     e.preventDefault();
 
-    const text =
-      input.value.trim();
+    const formData =
+      new FormData(form);
 
-    if (!text) return;
+    const response =
+      await fetch(
+        `/chat/conversation/${conversationId}/message`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-    // LIVE MESSAGE
+    if (response.ok) {
 
-    socket.emit(
-      "sendMessage",
-      {
-        conversationId,
+      document.getElementById(
+        "messageInput"
+      ).value = "";
 
-        text,
+      document.getElementById(
+        "imageInput"
+      ).value = "";
 
-        username:
-          "<%= currentUser.username %>",
-      }
-    );
+    }
 
-    // SAVE TO DATABASE
+  }
+);
 
-    await fetch(
-      `/chat/conversation/${conversationId}/message`,
-      {
-        method: "POST",
+socket.on(
+  "newMessage",
+  (data) => {
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+    const div =
+      document.createElement("div");
 
-        body: JSON.stringify({
-          text,
-        }),
-      }
-    );
+    div.style.marginBottom =
+      "20px";
 
-    input.value = "";
+    let html =
+      `<p><strong>${data.username}</strong></p>`;
+
+    if (data.text) {
+
+      html +=
+        `<p>${data.text}</p>`;
+
+    }
+
+    if (data.image) {
+
+      html += `
+        <img
+          src="${data.image}"
+          style="
+            width:100%;
+            max-width:300px;
+            border-radius:12px;
+            margin-top:10px;
+          "
+        >
+      `;
+
+    }
+
+    div.innerHTML = html;
+
+    messages.appendChild(div);
 
   }
 );

@@ -27,6 +27,7 @@ const io = new Server(server, {
     origin: "*",
   },
 });
+app.set("io", io);
 
 /* =========================
    MIDDLEWARE
@@ -133,18 +134,31 @@ io.on("connection", (socket) => {
   );
 
   socket.on(
-    "sendMessage",
-    (data) => {
+  "sendMessage",
+  (data) => {
 
-      io.to(
-        `conversation-${data.conversationId}`
-      ).emit(
-        "newMessage",
-        data
-      );
+    console.log(
+      "Live message:",
+      data
+    );
 
-    }
-  );
+    // SEND TO CHAT ROOM
+
+    io.to(
+      `conversation-${data.conversationId}`
+    ).emit(
+      "newMessage",
+      data
+    );
+
+    // SEND TO ALL INBOX PAGES
+
+    io.emit(
+      "refreshInbox"
+    );
+
+  }
+);
 
   socket.on("disconnect", () => {
 
